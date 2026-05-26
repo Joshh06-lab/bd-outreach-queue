@@ -4,145 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BD Outreach Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #f9f9f8; --bg2: #f2f2f0; --bg3: #e8e8e5;
-    --border: #e0e0dc; --border2: #d0d0cb;
-    --text: #1a1a18; --text2: #6b6b65; --text3: #9b9b95;
-    --blue: #185FA5; --blue-bg: #E6F1FB; --blue-border: #B5D4F4;
-    --green: #0F6E56; --green-bg: #E1F5EE; --green-border: #9FE1CB;
-    --amber: #854F0B; --amber-bg: #FAEEDA; --amber-border: #FAC775;
-    --red: #A32D2D; --red-bg: #FCEBEB; --red-border: #F7C1C1;
-    --purple: #3C3489; --purple-bg: #EEEDFE; --purple-border: #AFA9EC;
-    --radius: 8px; --radius-sm: 5px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bg: #f8f8f7; --bg2: #f0f0ee; --bg3: #e6e6e3;
+    --border: #e0e0dc; --border2: #cecec8;
+    --text: #1a1a18; --text2: #5a5a54; --text3: #9a9a94;
+    --blue: #185FA5; --blue-bg: #EBF3FC; --blue-border: #B8D4F0;
+    --green: #0A6E4F; --green-bg: #E4F5EE; --green-border: #96DFC0;
+    --amber: #7A4A0A; --amber-bg: #FBF0DC; --amber-border: #F5C878;
+    --red: #8A2020; --red-bg: #FCEAEA; --red-border: #F0BABA;
+    --purple: #3A3088; --purple-bg: #EEEDFB; --purple-border: #B0ABEC;
+    --radius: 10px; --radius-sm: 6px; --radius-xs: 4px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --font: 'Inter', -apple-system, sans-serif;
   }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-  .container { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 28px 24px; }
+
+  /* MODAL */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+  .overlay.open { display: flex; }
+  .modal { background: white; border-radius: var(--radius); padding: 28px; width: 460px; max-width: 95vw; box-shadow: var(--shadow-md); }
+  .modal-title { font-size: 17px; font-weight: 600; margin-bottom: 5px; }
+  .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 22px; line-height: 1.6; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .field input { width: 100%; font-size: 13px; padding: 9px 11px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); font-family: var(--font); color: var(--text); transition: border-color 0.15s; }
+  .field input:focus { outline: none; border-color: var(--blue); }
+  .field-note { font-size: 12px; color: var(--text3); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .field-note.ok { color: var(--green); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
+  /* BUTTONS */
+  .btn { font-size: 13px; padding: 7px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border2); background: white; color: var(--text2); cursor: pointer; font-family: var(--font); font-weight: 500; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; }
+  .btn:hover { background: var(--bg2); }
+  .btn-blue { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
+  .btn-blue:hover { opacity: 0.85; background: var(--blue-bg); }
+  .btn-green { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .btn-green:hover { opacity: 0.85; background: var(--green-bg); }
+  .btn-export { background: var(--blue); border-color: var(--blue); color: white; font-weight: 600; padding: 8px 16px; }
+  .btn-export:hover { opacity: 0.88; background: var(--blue); }
+  .btn-icon { padding: 7px 9px; }
 
   /* TOPBAR */
-  .topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 12px; }
-  .topbar-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .topbar-title i { color: var(--blue); }
-  .topbar-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border); gap: 16px; }
+  .topbar-brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon { width: 36px; height: 36px; background: var(--blue); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+  .brand-name { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .brand-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
   .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .conn-status { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text3); }
-  .conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); }
+  .conn-badge { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text3); padding: 5px 9px; border: 1px solid var(--border); border-radius: 20px; }
+  .conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
   .conn-dot.ok { background: var(--green); }
   .conn-dot.err { background: var(--red); }
 
-  /* BUTTONS */
-  .btn { font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border2); background: white; color: var(--text2); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font); transition: all 0.15s; }
-  .btn:hover { background: var(--bg2); }
-  .btn-primary { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
-  .btn-success { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
-  .btn-export { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); font-weight: 500; }
-  .btn-icon { padding: 6px 8px; }
-
   /* STATS */
-  .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 20px; }
-  .stat { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
-  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
-  .stat-value { font-size: 24px; font-weight: 600; }
-  .stat-value.blue { color: var(--blue); }
-  .stat-value.green { color: var(--green); }
-  .stat-value.amber { color: var(--amber); }
-  .stat-value.red { color: var(--red); }
-
-  /* FILTERS */
-  .filters { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
-  .filter-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .filter-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; min-width: 58px; }
-  .pill { font-size: 12px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); background: white; color: var(--text2); cursor: pointer; transition: all 0.12s; }
-  .pill:hover { background: var(--bg2); }
-  .pill.active { background: var(--bg3); border-color: var(--border2); color: var(--text); font-weight: 500; }
-
-  /* PRIORITY BAR */
-  .priority-bar { display: flex; align-items: center; gap: 16px; padding: 8px 12px; background: var(--bg2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 12px; color: var(--text2); margin-bottom: 12px; flex-wrap: wrap; }
-  .pri-item { display: flex; align-items: center; gap: 5px; }
-  .pri-dot { width: 8px; height: 8px; border-radius: 50%; }
-
-  /* BULK BAR */
-  .bulk { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--text2); }
-  .bulk-right { display: flex; gap: 6px; }
-  .sdot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 3px; }
-
-  /* SORT BAR */
-  .sort-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
-  .sort-label { font-size: 12px; color: var(--text3); }
+  .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 22px; }
+  .stat { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .stat-num { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
+  .stat-num.blue { color: var(--blue); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.red { color: var(--red); }
 
   /* TABS */
-  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .tab { font-size: 13px; padding: 8px 16px; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.12s; }
-  .tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+  .tabs { display: flex; border-bottom: 1.5px solid var(--border); margin-bottom: 18px; }
+  .tab { font-size: 13px; font-weight: 500; padding: 9px 18px; cursor: pointer; color: var(--text3); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; transition: all 0.15s; }
+  .tab.active { color: var(--text); border-bottom-color: var(--blue); }
+  .tab:hover:not(.active) { color: var(--text2); }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
+  .tab-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: var(--red-bg); color: var(--red); margin-left: 5px; font-weight: 600; }
 
-  /* LEAD CARDS */
-  .lead-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; transition: border-color 0.12s; }
-  .lead-card:hover { border-color: var(--border2); }
-  .lead-card.approved { border-left: 3px solid var(--green); }
-  .lead-card.skipped { opacity: 0.42; }
-  .card-header { display: flex; align-items: flex-start; gap: 10px; padding: 13px 15px 10px; cursor: pointer; }
-  .pbar { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
-  .pbar.p1 { background: var(--blue); }
-  .pbar.p2 { background: var(--green); }
-  .pbar.p3 { background: var(--amber); }
-  .avatar { width: 38px; height: 38px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  /* FILTERS */
+  .filters { margin-bottom: 16px; display: flex; flex-direction: column; gap: 7px; }
+  .filter-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .filter-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; min-width: 56px; }
+  .pill { font-size: 12px; padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border); background: white; color: var(--text2); cursor: pointer; font-weight: 500; transition: all 0.12s; }
+  .pill:hover { background: var(--bg2); }
+  .pill.on { background: var(--text); border-color: var(--text); color: white; }
+
+  /* PRIORITY LEGEND */
+  .pri-legend { display: flex; align-items: center; gap: 16px; padding: 9px 14px; background: var(--bg2); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 12px; color: var(--text2); margin-bottom: 14px; flex-wrap: wrap; font-weight: 500; }
+  .pri-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* BULK BAR */
+  .bulk { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: white; border: 1.5px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--text2); box-shadow: var(--shadow); }
+  .bulk-right { display: flex; gap: 7px; }
+  .sdot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+  /* SORT */
+  .sort-row { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .sort-lbl { font-size: 12px; color: var(--text3); font-weight: 500; }
+
+  /* CARDS */
+  .lead-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; box-shadow: var(--shadow); transition: border-color 0.15s, box-shadow 0.15s; }
+  .lead-card:hover { border-color: var(--border2); box-shadow: var(--shadow-md); }
+  .lead-card.approved { border-left: 4px solid var(--green); }
+  .lead-card.skipped { opacity: 0.38; }
+  .card-header { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px 12px; cursor: pointer; }
+  .pbar { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; margin-top: 2px; }
+  .p1 { background: var(--blue); }
+  .p2 { background: var(--green); }
+  .p3 { background: var(--amber); }
+  .avatar { width: 38px; height: 38px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; letter-spacing: 0.5px; }
   .card-info { flex: 1; min-width: 0; }
-  .card-company { font-size: 14px; font-weight: 600; }
+  .card-co { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
   .card-role { font-size: 13px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .badge { font-size: 11px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+  .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
   .b-cyber { background: var(--blue-bg); color: var(--blue); }
   .b-data { background: var(--green-bg); color: var(--green); }
   .b-transform { background: var(--purple-bg); color: var(--purple); }
   .b-sales { background: var(--amber-bg); color: var(--amber); }
   .b-grey { background: var(--bg2); color: var(--text2); border: 1px solid var(--border); }
-  .b-red { background: var(--red-bg); color: var(--red); }
   .card-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-  .card-body { display: none; padding: 0 15px 14px; }
-  .card-body.open { display: block; }
-  .signal-box { font-size: 13px; color: var(--text2); background: var(--bg2); border-radius: var(--radius-sm); padding: 8px 10px; margin-bottom: 10px; line-height: 1.6; }
+
+  /* CARD BODY */
+  .card-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); margin-top: 0; }
+  .card-body.open { display: block; padding-top: 14px; }
+  .signal-box { font-size: 13px; color: var(--text2); background: var(--bg2); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; line-height: 1.65; }
   .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .contact-box { background: var(--bg2); border-radius: var(--radius-sm); padding: 10px; }
-  .contact-title-label { font-size: 12px; color: var(--text2); margin-bottom: 2px; }
-  .contact-title-val { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
-  .msg-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
-  .msg-box { width: 100%; font-size: 13px; padding: 7px 9px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: white; color: var(--text); font-family: var(--font); resize: vertical; min-height: 70px; line-height: 1.5; }
+  .contact-box { background: var(--bg2); border-radius: var(--radius-sm); padding: 12px; }
+  .contact-num { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 3px; }
+  .contact-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .msg-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 5px; }
+  .msg-box { width: 100%; font-size: 13px; padding: 8px 10px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); background: white; color: var(--text); font-family: var(--font); resize: vertical; min-height: 72px; line-height: 1.55; transition: border-color 0.15s; }
+  .msg-box:focus { outline: none; border-color: var(--blue); }
 
   /* EXCLUDED */
-  .excl-card { background: white; border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .excl-card { background: white; border: 1.5px solid var(--border); border-left: 4px solid var(--red); border-radius: var(--radius); padding: 13px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
   .excl-info { flex: 1; }
-  .excl-company { font-size: 14px; font-weight: 600; }
-  .excl-role { font-size: 13px; color: var(--text2); margin-top: 1px; }
-
-  /* SETTINGS */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; display: none; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: white; border-radius: var(--radius); padding: 24px; width: 440px; max-width: 95vw; border: 1px solid var(--border2); }
-  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
-  .field input { width: 100%; font-size: 13px; padding: 8px 10px; border: 1px solid var(--border2); border-radius: var(--radius-sm); font-family: var(--font); color: var(--text); }
-  .field input:focus { outline: none; border-color: var(--blue); }
-  .field-note { font-size: 12px; color: var(--text3); margin-top: 3px; }
-  .field-note.ok { color: var(--green); }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .excl-co { font-size: 14px; font-weight: 600; }
+  .excl-role { font-size: 13px; color: var(--text2); margin-top: 2px; }
 
   /* EMPTY / LOADING */
-  .empty { text-align: center; padding: 3rem 1rem; color: var(--text2); }
-  .empty-icon { font-size: 32px; margin-bottom: 12px; color: var(--text3); }
-  .empty h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-  .empty p { font-size: 13px; line-height: 1.6; }
-  .spinner { width: 26px; height: 26px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 12px; }
+  .empty { text-align: center; padding: 4rem 1rem; }
+  .empty-icon { font-size: 36px; color: var(--text3); margin-bottom: 14px; }
+  .empty h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+  .empty p { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 360px; margin: 0 auto; }
+  .spinner { width: 28px; height: 28px; border: 2.5px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* TOAST */
-  .toast { position: fixed; bottom: 20px; right: 20px; padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; display: none; align-items: center; gap: 7px; z-index: 200; border: 1px solid; }
+  .toast { position: fixed; bottom: 24px; right: 24px; padding: 11px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 8px; z-index: 300; box-shadow: var(--shadow-md); border: 1.5px solid; }
   .toast.show { display: flex; }
   .toast.ok { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
   .toast.err { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
@@ -152,63 +163,65 @@
 <div class="container">
 
 <!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="modal">
+<div class="overlay" id="modal">
   <div class="modal">
-    <div class="modal-title">Connect to Google Sheets</div>
-    <div class="modal-sub">Your API key is stored in your browser session only — it goes directly to Google's API and nowhere else.</div>
+    <div class="modal-title">Connect to Supabase</div>
+    <div class="modal-sub">Your credentials are stored in your browser session only — they go directly to Supabase and nowhere else.</div>
     <div class="field">
-      <label>Sheet ID</label>
-      <input type="text" id="inp-sheet" value="1plB7-UKCLJTdF1XtyEqESOfDmpLX61-Pk1jL1gJndsQ" readonly>
-      <div class="field-note ok"><i class="fa fa-check fa-xs"></i> Your Sheet ID is pre-loaded</div>
+      <label>Supabase Project URL</label>
+      <input type="text" id="inp-url" value="https://tufxwlybkqqhcieinqvn.supabase.co" readonly>
+      <div class="field-note ok"><i class="fa fa-check fa-xs"></i> Pre-loaded</div>
     </div>
     <div class="field">
-      <label>Google Sheets API Key</label>
-      <input type="password" id="inp-key" placeholder="Paste your new API key here…">
-      <div class="field-note"><i class="fa fa-lock fa-xs"></i> Stored in browser session only — never logged or shared</div>
+      <label>Supabase Anon Key</label>
+      <input type="password" id="inp-key" placeholder="Paste your anon/public key here…">
+      <div class="field-note"><i class="fa fa-lock fa-xs"></i> Session only — never logged or shared</div>
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="connect()"><i class="fa fa-plug fa-xs"></i> Connect & Load</button>
+      <button class="btn btn-blue" onclick="connect()"><i class="fa fa-plug fa-xs"></i> Connect & Load</button>
     </div>
   </div>
 </div>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div>
-    <div class="topbar-title"><i class="fa fa-satellite-dish"></i> Outreach Queue</div>
-    <div class="topbar-sub" id="sub-text">Not connected — click Connect to load your live queue</div>
+  <div class="topbar-brand">
+    <div class="brand-icon"><i class="fa fa-satellite-dish"></i></div>
+    <div>
+      <div class="brand-name">Outreach Queue</div>
+      <div class="brand-sub" id="sub-text">Not connected</div>
+    </div>
   </div>
   <div class="topbar-right">
-    <div class="conn-status"><span class="conn-dot" id="cdot"></span><span id="clabel">Disconnected</span></div>
+    <div class="conn-badge"><span class="conn-dot" id="cdot"></span><span id="clabel">Disconnected</span></div>
     <button class="btn btn-icon" onclick="openModal()" title="Settings"><i class="fa fa-gear"></i></button>
-    <button class="btn btn-icon" onclick="refresh()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
+    <button class="btn btn-icon" onclick="loadData()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
     <button class="btn btn-export" onclick="exportCSV()"><i class="fa fa-download"></i> Export to Linked Helper</button>
   </div>
 </div>
 
 <!-- STATS -->
 <div class="stats">
-  <div class="stat"><div class="stat-label">Signals</div><div class="stat-value" id="s-total">—</div></div>
-  <div class="stat"><div class="stat-label">Excluded</div><div class="stat-value red" id="s-excl">—</div></div>
-  <div class="stat"><div class="stat-label">Approved</div><div class="stat-value green" id="s-appr">0</div></div>
-  <div class="stat"><div class="stat-label">Contacts queued</div><div class="stat-value blue" id="s-cont">0</div></div>
-  <div class="stat"><div class="stat-label">Pending</div><div class="stat-value amber" id="s-pend">—</div></div>
+  <div class="stat"><div class="stat-label">Signals today</div><div class="stat-num" id="s-total">—</div></div>
+  <div class="stat"><div class="stat-label">Auto-excluded</div><div class="stat-num red" id="s-excl">—</div></div>
+  <div class="stat"><div class="stat-label">Approved</div><div class="stat-num green" id="s-appr">0</div></div>
+  <div class="stat"><div class="stat-label">Contacts queued</div><div class="stat-num blue" id="s-cont">0</div></div>
+  <div class="stat"><div class="stat-label">Pending</div><div class="stat-num amber" id="s-pend">—</div></div>
 </div>
 
 <!-- TABS -->
 <div class="tabs">
   <div class="tab active" id="t-queue" onclick="showTab('queue')">Approval Queue</div>
-  <div class="tab" id="t-excl" onclick="showTab('excl')">Auto-Excluded <span id="excl-count" style="font-size:11px;padding:1px 6px;background:var(--red-bg);color:var(--red);border-radius:20px;margin-left:4px;"></span></div>
+  <div class="tab" id="t-excl" onclick="showTab('excl')">Auto-Excluded<span class="tab-badge" id="excl-badge"></span></div>
 </div>
 
-<!-- QUEUE PANEL -->
+<!-- QUEUE TAB -->
 <div class="tab-panel active" id="p-queue">
-
   <div class="filters">
     <div class="filter-row">
       <span class="filter-label">Vertical</span>
-      <span class="pill active" onclick="filt('v','all',this)">All</span>
+      <span class="pill on" onclick="filt('v','all',this)">All</span>
       <span class="pill" onclick="filt('v','Cyber',this)">Cyber</span>
       <span class="pill" onclick="filt('v','Data & AI',this)">Data & AI</span>
       <span class="pill" onclick="filt('v','Transformation',this)">Transformation</span>
@@ -216,7 +229,7 @@
     </div>
     <div class="filter-row">
       <span class="filter-label">City</span>
-      <span class="pill active" onclick="filt('c','all',this)">All</span>
+      <span class="pill on" onclick="filt('c','all',this)">All</span>
       <span class="pill" onclick="filt('c','Sydney',this)">Sydney</span>
       <span class="pill" onclick="filt('c','Melbourne',this)">Melbourne</span>
       <span class="pill" onclick="filt('c','Brisbane',this)">Brisbane</span>
@@ -226,193 +239,166 @@
     </div>
     <div class="filter-row">
       <span class="filter-label">Status</span>
-      <span class="pill active" onclick="filt('s','all',this)">All</span>
-      <span class="pill" onclick="filt('s','pending',this)">Pending</span>
+      <span class="pill on" onclick="filt('s','all',this)">All</span>
+      <span class="pill" onclick="filt('s','Pending',this)">Pending</span>
       <span class="pill" onclick="filt('s','approved',this)">Approved</span>
       <span class="pill" onclick="filt('s','skipped',this)">Skipped</span>
     </div>
   </div>
 
-  <div class="priority-bar">
-    <strong>Priority:</strong>
-    <span class="pri-item"><span class="pri-dot" style="background:var(--blue)"></span>P1 — Sydney, Melbourne, Brisbane, Canberra</span>
-    <span class="pri-item"><span class="pri-dot" style="background:var(--green)"></span>P2 — Adelaide</span>
-    <span class="pri-item"><span class="pri-dot" style="background:var(--amber)"></span>P3 — Perth</span>
+  <div class="pri-legend">
+    <strong style="color:var(--text)">Priority:</strong>
+    <span style="display:flex;align-items:center;gap:5px"><span class="pri-dot" style="background:var(--blue)"></span>P1 — Sydney, Melbourne, Brisbane, Canberra</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="pri-dot" style="background:var(--green)"></span>P2 — Adelaide</span>
+    <span style="display:flex;align-items:center;gap:5px"><span class="pri-dot" style="background:var(--amber)"></span>P3 — Perth</span>
   </div>
 
-  <div class="sort-bar">
-    <span class="sort-label">Sort:</span>
-    <button class="btn active" id="sb-priority" onclick="sort('priority',this)">Priority</button>
-    <button class="btn" id="sb-newest" onclick="sort('newest',this)">Newest</button>
-    <button class="btn" id="sb-vertical" onclick="sort('vertical',this)">Vertical</button>
-    <button class="btn" id="sb-city" onclick="sort('city',this)">City</button>
+  <div class="sort-row">
+    <span class="sort-lbl">Sort:</span>
+    <button class="btn on" onclick="setSort('priority',this)">Priority</button>
+    <button class="btn" onclick="setSort('newest',this)">Newest</button>
+    <button class="btn" onclick="setSort('vertical',this)">Vertical</button>
+    <button class="btn" onclick="setSort('city',this)">City</button>
   </div>
 
   <div class="bulk">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-      <span><span class="sdot" style="background:var(--green)"></span><span id="b-appr">0</span> approved</span> &nbsp;·&nbsp;
-      <span><span class="sdot" style="background:var(--amber)"></span><span id="b-pend">—</span> pending</span> &nbsp;·&nbsp;
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span><span class="sdot" style="background:var(--green)"></span><span id="b-appr">0</span> approved</span>
+      <span style="color:var(--border2)">·</span>
+      <span><span class="sdot" style="background:var(--amber)"></span><span id="b-pend">—</span> pending</span>
+      <span style="color:var(--border2)">·</span>
       <span><span class="sdot" style="background:var(--text3)"></span><span id="b-skip">0</span> skipped</span>
     </div>
     <div class="bulk-right">
-      <button class="btn btn-success" onclick="approveAll()">Approve all visible</button>
-      <button class="btn" onclick="skipAll()">Skip all visible</button>
+      <button class="btn btn-green" onclick="approveAll()">Approve all visible</button>
+      <button class="btn" onclick="skipAll()">Skip all</button>
     </div>
   </div>
 
   <div id="leads"></div>
 </div>
 
-<!-- EXCLUDED PANEL -->
+<!-- EXCLUDED TAB -->
 <div class="tab-panel" id="p-excl">
   <div id="excl-list"></div>
 </div>
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"><span id="toast-msg"></span></div>
 
 <script>
-const SHEET_ID = '1plB7-UKCLJTdF1XtyEqESOfDmpLX61-Pk1jL1gJndsQ';
+const SUPABASE_URL = 'https://tufxwlybkqqhcieinqvn.supabase.co';
 const PMAP = {Sydney:1,Melbourne:1,Brisbane:1,Canberra:1,Adelaide:2,Perth:3};
 const AVATARS = [
-  {bg:'#E6F1FB',c:'#185FA5'},{bg:'#E1F5EE',c:'#0F6E56'},
-  {bg:'#EEEDFE',c:'#3C3489'},{bg:'#FAEEDA',c:'#854F0B'},
-  {bg:'#FAECE7',c:'#993C1D'},{bg:'#E9F9FE',c:'#0E6E8C'},
+  {bg:'#EBF3FC',c:'#185FA5'},{bg:'#E4F5EE',c:'#0A6E4F'},
+  {bg:'#EEEDFB',c:'#3A3088'},{bg:'#FBF0DC',c:'#7A4A0A'},
+  {bg:'#FCEAEA',c:'#8A2020'},{bg:'#E8F8FB',c:'#0A6070'},
 ];
 
-let apiKey='', leads=[], excluded=[], vf='all', cf='all', sf='all', sm='priority', connected=false;
+let supabaseKey='', leads=[], excluded=[], vf='all', cf='all', sf='all', sm='priority', connected=false;
 
 function openModal(){ document.getElementById('modal').classList.add('open'); }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
 
 async function connect(){
-  const k = document.getElementById('inp-key').value.trim();
-  if(!k){ toast('Please paste your API key','err'); return; }
-  apiKey = k;
-  closeModal();
-  await loadData();
-}
-
-async function refresh(){
-  if(!apiKey){ openModal(); return; }
-  await loadData();
+  const k=document.getElementById('inp-key').value.trim();
+  if(!k){ toast('Please paste your Supabase anon key','err'); return; }
+  supabaseKey=k; closeModal(); await loadData();
 }
 
 async function loadData(){
+  if(!supabaseKey){ openModal(); return; }
   setStatus('loading');
-  document.getElementById('leads').innerHTML = '<div class="empty"><div class="spinner"></div><p>Loading from Google Sheets…</p></div>';
+  document.getElementById('leads').innerHTML='<div class="empty"><div class="spinner"></div><p>Loading from Supabase…</p></div>';
   try {
-    const [q, e] = await Promise.all([fetchTab('Queue!A:N'), fetchTab('Auto-Excluded!A:D')]);
-    leads = parseLeads(q);
-    excluded = parseExcluded(e);
-    connected = true;
+    const today=new Date().toISOString().split('T')[0];
+    const sevenDaysAgo=new Date(Date.now()-7*24*60*60*1000).toISOString().split('T')[0];
+    const [leadsRes, exclRes] = await Promise.all([
+      supabaseFetch(`/rest/v1/leads?date_scraped=gte.${sevenDaysAgo}&order=priority.asc,created_at.desc&limit=200`),
+      supabaseFetch(`/rest/v1/excluded_leads?date_scraped=gte.${sevenDaysAgo}&order=created_at.desc&limit=100`)
+    ]);
+    leads = leadsRes.map(l=>({...l, _open:false}));
+    excluded = exclRes;
+    connected=true;
     setStatus('ok');
     renderAll();
-  } catch(err) {
-    connected = false;
-    setStatus('err');
-    toast('Could not load — check API key and Sheet is shared publicly','err');
-    document.getElementById('leads').innerHTML = '<div class="empty"><div class="empty-icon"><i class="fa fa-triangle-exclamation"></i></div><h3>Connection failed</h3><p>Check your API key is correct and the Sheet is set to<br><strong>Anyone with the link → Viewer</strong></p></div>';
+  } catch(e) {
+    connected=false; setStatus('err');
+    toast('Could not connect — check your anon key','err');
+    document.getElementById('leads').innerHTML='<div class="empty"><div class="empty-icon"><i class="fa fa-triangle-exclamation"></i></div><h3>Connection failed</h3><p>Check your Supabase anon key and try again.</p><br><button class="btn btn-blue" onclick="openModal()"><i class="fa fa-gear fa-xs"></i> Settings</button></div>';
   }
 }
 
-async function fetchTab(range){
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${apiKey}`;
-  const r = await fetch(url);
-  if(!r.ok) throw new Error(r.status);
-  const d = await r.json();
-  return d.values || [];
+async function supabaseFetch(path){
+  const r=await fetch(`${SUPABASE_URL}${path}`,{
+    headers:{'apikey':supabaseKey,'Authorization':`Bearer ${supabaseKey}`,'Content-Type':'application/json'}
+  });
+  if(!r.ok) throw new Error(`Supabase error: ${r.status}`);
+  return r.json();
 }
 
-function parseLeads(rows){
-  if(rows.length<2) return [];
-  const h = rows[0].map(x=>x.trim().toLowerCase().replace(/\s+/g,''));
-  const col = k => h.indexOf(k);
-  return rows.slice(1).map((r,i)=>({
-    id:i+1,
-    date: r[col('date')]||'',
-    company: r[col('company')]||'',
-    role: r[col('role')]||'',
-    vertical: r[col('vertical')]||'',
-    city: r[col('city')]||'',
-    priority: r[col('priority')]||'P1',
-    level: r[col('level')]||'',
-    signal: r[col('signal')]||'',
-    c1: r[col('contact1title')]||'',
-    c2: r[col('contact2title')]||'',
-    m1: r[col('message1')]||'',
-    m2: r[col('message2')]||'',
-    url: r[col('joburl')]||'',
-    status: r[col('status')]||'Pending',
-    _open:false
-  })).filter(l=>l.company);
-}
-
-function parseExcluded(rows){
-  if(rows.length<2) return [];
-  const h = rows[0].map(x=>x.trim().toLowerCase());
-  const col = k=>h.indexOf(k);
-  return rows.slice(1).map((r,i)=>({
-    id:i, date:r[col('date')]||'', company:r[col('company')]||'',
-    role:r[col('role')]||'', reason:r[col('reason')]||''
-  })).filter(e=>e.company);
+async function updateLeadStatus(id, status){
+  await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'apikey':supabaseKey,'Authorization':`Bearer ${supabaseKey}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({status})
+  });
 }
 
 function setStatus(s){
-  const dot=document.getElementById('cdot'), lbl=document.getElementById('clabel');
-  if(s==='ok'){ dot.className='conn-dot ok'; lbl.textContent='Connected'; }
-  else if(s==='err'){ dot.className='conn-dot err'; lbl.textContent='Error'; }
-  else { dot.className='conn-dot'; lbl.textContent='Loading…'; }
+  const dot=document.getElementById('cdot'),lbl=document.getElementById('clabel');
+  if(s==='ok'){dot.className='conn-dot ok';lbl.textContent='Connected';}
+  else if(s==='err'){dot.className='conn-dot err';lbl.textContent='Error';}
+  else{dot.className='conn-dot';lbl.textContent='Loading…';}
 }
 
-function pnum(l){ const p=l.priority; return p==='P1'?1:p==='P2'?2:p==='P3'?3:(PMAP[l.city]||3); }
-function pcls(l){ return ['','p1','p2','p3'][pnum(l)]; }
-function av(i){ const c=AVATARS[i%AVATARS.length]; return `background:${c.bg};color:${c.c};`; }
-function vcls(v){ return {Cyber:'b-cyber','Data & AI':'b-data',Transformation:'b-transform','Technology Sales':'b-sales'}[v]||'b-grey'; }
+function pnum(l){return l.priority==='P1'?1:l.priority==='P2'?2:3;}
+function pcls(l){return ['','p1','p2','p3'][pnum(l)];}
+function av(i){const c=AVATARS[i%AVATARS.length];return `background:${c.bg};color:${c.c};`;}
+function vcls(v){return {'Cyber':'b-cyber','Data & AI':'b-data','Transformation':'b-transform','Technology Sales':'b-sales'}[v]||'b-grey';}
 
 function filtered(){
   let l=[...leads];
   if(vf!=='all') l=l.filter(x=>x.vertical===vf);
   if(cf!=='all') l=l.filter(x=>x.city===cf);
-  if(sf!=='all') l=l.filter(x=>x.status.toLowerCase()===sf);
-  if(sm==='priority') l.sort((a,b)=>pnum(a)-pnum(b));
-  else if(sm==='newest') l.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  else if(sm==='vertical') l.sort((a,b)=>a.vertical.localeCompare(b.vertical));
-  else if(sm==='city') l.sort((a,b)=>a.city.localeCompare(b.city));
+  if(sf!=='all') l=l.filter(x=>x.status?.toLowerCase()===sf.toLowerCase());
+  if(sm==='priority') l.sort((a,b)=>pnum(a)-pnum(b)||new Date(b.created_at)-new Date(a.created_at));
+  else if(sm==='newest') l.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  else if(sm==='vertical') l.sort((a,b)=>a.vertical?.localeCompare(b.vertical));
+  else if(sm==='city') l.sort((a,b)=>a.city?.localeCompare(b.city));
   return l;
 }
 
 function filt(type,val,el){
-  if(type==='v'){vf=val;document.querySelectorAll('.filter-row:nth-child(1) .pill').forEach(p=>p.classList.toggle('active',p.textContent.trim()===el.textContent.trim()));}
-  if(type==='c'){cf=val;document.querySelectorAll('.filter-row:nth-child(2) .pill').forEach(p=>p.classList.toggle('active',p.textContent.trim()===el.textContent.trim()));}
-  if(type==='s'){sf=val;document.querySelectorAll('.filter-row:nth-child(3) .pill').forEach(p=>p.classList.toggle('active',p.textContent.trim()===el.textContent.trim()));}
+  if(type==='v'){vf=val;document.querySelectorAll('.filter-row:nth-child(1) .pill').forEach(p=>p.classList.toggle('on',p===el));}
+  if(type==='c'){cf=val;document.querySelectorAll('.filter-row:nth-child(2) .pill').forEach(p=>p.classList.toggle('on',p===el));}
+  if(type==='s'){sf=val;document.querySelectorAll('.filter-row:nth-child(3) .pill').forEach(p=>p.classList.toggle('on',p===el));}
   renderLeads();
 }
 
-function sort(m,el){
+function setSort(m,el){
   sm=m;
-  document.querySelectorAll('.sort-bar .btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+  document.querySelectorAll('.sort-row .btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
   renderLeads();
 }
 
-function renderAll(){ renderLeads(); renderExcluded(); updateStats(); }
+function renderAll(){renderLeads();renderExcluded();updateStats();}
 
 function renderLeads(){
   const el=document.getElementById('leads');
-  if(!connected&&leads.length===0){
-    el.innerHTML=`<div class="empty"><div class="empty-icon"><i class="fa fa-plug-circle-xmark"></i></div><h3>Not connected</h3><p>Enter your API key to load your live queue from Google Sheets.</p><br><button class="btn btn-primary" onclick="openModal()"><i class="fa fa-gear fa-xs"></i> Connect now</button></div>`;
+  if(!connected&&!leads.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon"><i class="fa fa-plug-circle-xmark"></i></div><h3>Not connected</h3><p>Connect to Supabase to load your live morning queue.</p><br><button class="btn btn-blue" onclick="openModal()"><i class="fa fa-gear fa-xs"></i> Connect now</button></div>`;
     return;
   }
   const list=filtered();
   if(!list.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon"><i class="fa fa-circle-check"></i></div><h3>Nothing here</h3><p>No leads match this filter.</p></div>';
-    updateStats(); return;
+    el.innerHTML='<div class="empty"><div class="empty-icon"><i class="fa fa-circle-check"></i></div><h3>Nothing here</h3><p>No leads match this filter, or no signals have been scraped today yet.</p></div>';
+    updateStats();return;
   }
   el.innerHTML=list.map((l,i)=>{
-    const st=l.status.toLowerCase();
+    const st=l.status?.toLowerCase()||'pending';
     const cardCls=st==='approved'?'approved':st==='skipped'?'skipped':'';
     const aLabel=st==='approved'?'✓ Approved':'Approve';
     const sLabel=st==='skipped'?'Undo':'Skip';
@@ -420,36 +406,36 @@ function renderLeads(){
     const sTarget=st==='skipped'?'Pending':'skipped';
     return `
     <div class="lead-card ${cardCls}" id="lc-${l.id}">
-      <div class="card-header" onclick="toggle(${l.id})">
+      <div class="card-header" onclick="toggle('${l.id}')">
         <div class="pbar ${pcls(l)}"></div>
-        <div class="avatar" style="${av(i)}">${l.company.slice(0,2).toUpperCase()}</div>
+        <div class="avatar" style="${av(i)}">${(l.company||'??').slice(0,2).toUpperCase()}</div>
         <div class="card-info">
-          <div class="card-company">${l.company}</div>
-          <div class="card-role">${l.role}</div>
+          <div class="card-co">${l.company||''}</div>
+          <div class="card-role">${l.role||''}</div>
           <div class="badges">
-            <span class="badge ${vcls(l.vertical)}">${l.vertical}</span>
-            <span class="badge b-grey"><i class="fa fa-location-dot fa-xs"></i> ${l.city}</span>
-            <span class="badge b-grey">${l.priority}</span>
+            <span class="badge ${vcls(l.vertical)}">${l.vertical||''}</span>
+            <span class="badge b-grey"><i class="fa fa-location-dot fa-xs"></i> ${l.city||''}</span>
+            <span class="badge b-grey">${l.priority||''}</span>
             ${l.level?`<span class="badge b-grey">${l.level}</span>`:''}
-            ${l.date?`<span class="badge b-grey"><i class="fa fa-calendar fa-xs"></i> ${l.date}</span>`:''}
+            ${l.date_scraped?`<span class="badge b-grey"><i class="fa fa-calendar fa-xs"></i> ${l.date_scraped}</span>`:''}
           </div>
         </div>
         <div class="card-actions" onclick="event.stopPropagation()">
-          <button class="btn btn-success" onclick="setLead(${l.id},'${aTarget}')">${aLabel}</button>
-          <button class="btn" onclick="setLead(${l.id},'${sTarget}')">${sLabel}</button>
-          <button class="btn btn-icon" onclick="toggle(${l.id})"><i class="fa fa-chevron-${l._open?'up':'down'}"></i></button>
+          <button class="btn btn-green" onclick="setStatus('${l.id}','${aTarget}')" style="${st==='approved'?'opacity:0.7':''}">${aLabel}</button>
+          <button class="btn" onclick="setStatus('${l.id}','${sTarget}')">${sLabel}</button>
+          <button class="btn btn-icon" onclick="toggle('${l.id}')"><i class="fa fa-chevron-${l._open?'up':'down'}"></i></button>
         </div>
       </div>
       <div class="card-body${l._open?' open':''}" id="cb-${l.id}">
-        ${l.signal?`<div class="signal-box">${l.signal}${l.url?` <a href="${l.url}" target="_blank" style="color:var(--blue);font-size:12px;margin-left:4px;"><i class="fa fa-arrow-up-right-from-square fa-xs"></i> Seek</a>`:''}</div>`:''}
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text3);margin-bottom:8px;">Target contacts via Recruiter Lite</div>
+        ${l.signal?`<div class="signal-box">${l.signal}${l.job_url?` <a href="${l.job_url}" target="_blank" style="color:var(--blue);font-size:12px;margin-left:6px"><i class="fa fa-arrow-up-right-from-square fa-xs"></i> Seek</a>`:''}</div>`:''}
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px">Target contacts via Recruiter Lite</div>
         <div class="contacts-grid">
-          ${[{t:l.c1,m:l.m1},{t:l.c2,m:l.m2}].map((c,ci)=>`
+          ${[{n:'Contact 1',t:l.contact1_title,m:l.message1,i:1},{n:'Contact 2',t:l.contact2_title,m:l.message2,i:2}].map(c=>`
           <div class="contact-box">
-            <div class="contact-title-label">Contact ${ci+1}</div>
-            <div class="contact-title-val">${c.t||'—'}</div>
-            <div class="msg-label">Connection message</div>
-            <textarea class="msg-box" id="m-${l.id}-${ci}">${c.m||''}</textarea>
+            <div class="contact-num">${c.n}</div>
+            <div class="contact-title">${c.t||'—'}</div>
+            <div class="msg-lbl">Connection message</div>
+            <textarea class="msg-box" id="m-${l.id}-${c.i}" rows="3">${c.m||''}</textarea>
           </div>`).join('')}
         </div>
       </div>
@@ -460,49 +446,56 @@ function renderLeads(){
 
 function renderExcluded(){
   const el=document.getElementById('excl-list');
-  const badge=document.getElementById('excl-count');
+  const badge=document.getElementById('excl-badge');
   badge.textContent=excluded.length||'';
   if(!excluded.length){
-    el.innerHTML='<div class="empty"><h3>No exclusions</h3><p>Government and recruiter roles filtered out by Relevance AI will appear here.</p></div>';
+    el.innerHTML='<div class="empty"><h3>No exclusions today</h3><p>Government and recruiter roles filtered by the Worker will appear here.</p></div>';
     return;
   }
   el.innerHTML=excluded.map((e,i)=>`
   <div class="excl-card">
-    <div class="avatar" style="${av(i+4)}">${e.company.slice(0,2).toUpperCase()}</div>
+    <div class="avatar" style="${av(i+4)}">${(e.company||'??').slice(0,2).toUpperCase()}</div>
     <div class="excl-info">
-      <div class="excl-company">${e.company}</div>
-      <div class="excl-role">${e.role}</div>
-      <div style="margin-top:5px;"><span class="badge b-red"><i class="fa fa-ban fa-xs"></i> ${e.reason}</span>${e.date?` <span class="badge b-grey">${e.date}</span>`:''}</div>
+      <div class="excl-co">${e.company||''}</div>
+      <div class="excl-role">${e.role||''}</div>
+      <div style="margin-top:6px"><span class="badge" style="background:var(--red-bg);color:var(--red);font-size:11px"><i class="fa fa-ban fa-xs"></i> ${e.reason||''}</span></div>
     </div>
-    <button class="btn" onclick="toast('${e.company} added to queue — refresh to see it','ok')">Add to queue</button>
   </div>`).join('');
 }
 
 function toggle(id){
-  const l=leads.find(x=>x.id===id); if(!l) return;
-  l._open=!l._open; renderLeads();
+  const l=leads.find(x=>x.id===id);
+  if(l){l._open=!l._open;renderLeads();}
 }
 
-function setLead(id,status){
-  const l=leads.find(x=>x.id===id); if(!l) return;
+async function setStatus(id,status){
+  const l=leads.find(x=>x.id===id);
+  if(!l) return;
   l.status=status;
-  if(status==='approved'){l._open=true; toast(`${l.company} approved — 2 contacts queued`,'ok');}
+  if(status==='approved'){l._open=true;toast(`${l.company} approved — 2 contacts queued`,'ok');}
   renderLeads();
+  try { await updateLeadStatus(id,status); } catch(e){ toast('Failed to save status','err'); }
 }
 
-function approveAll(){
-  filtered().forEach(l=>{if(l.status.toLowerCase()==='pending')l.status='approved';});
-  toast('Visible leads approved','ok'); renderLeads();
-}
-function skipAll(){
-  filtered().forEach(l=>{if(l.status.toLowerCase()==='pending')l.status='skipped';});
+async function approveAll(){
+  const list=filtered().filter(l=>l.status?.toLowerCase()==='pending');
+  list.forEach(l=>l.status='approved');
   renderLeads();
+  toast(`${list.length} leads approved`,'ok');
+  for(const l of list){ try{ await updateLeadStatus(l.id,'approved'); }catch(e){} }
+}
+
+async function skipAll(){
+  const list=filtered().filter(l=>l.status?.toLowerCase()==='pending');
+  list.forEach(l=>l.status='skipped');
+  renderLeads();
+  for(const l of list){ try{ await updateLeadStatus(l.id,'skipped'); }catch(e){} }
 }
 
 function updateStats(){
-  const appr=leads.filter(l=>l.status.toLowerCase()==='approved').length;
-  const pend=leads.filter(l=>l.status.toLowerCase()==='pending').length;
-  const skip=leads.filter(l=>l.status.toLowerCase()==='skipped').length;
+  const appr=leads.filter(l=>l.status?.toLowerCase()==='approved').length;
+  const pend=leads.filter(l=>l.status?.toLowerCase()==='pending').length;
+  const skip=leads.filter(l=>l.status?.toLowerCase()==='skipped').length;
   document.getElementById('s-total').textContent=leads.length||'—';
   document.getElementById('s-excl').textContent=excluded.length||'—';
   document.getElementById('s-appr').textContent=appr;
@@ -512,8 +505,8 @@ function updateStats(){
   document.getElementById('b-pend').textContent=leads.length?pend:'—';
   document.getElementById('b-skip').textContent=skip;
   if(connected){
-    const d=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    document.getElementById('sub-text').textContent=`${d} · ${leads.length} signals · ${excluded.length} auto-excluded`;
+    const d=new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+    document.getElementById('sub-text').textContent=`${d} · ${leads.length} signals · ${excluded.length} excluded`;
   }
 }
 
@@ -525,20 +518,20 @@ function showTab(t){
 }
 
 function exportCSV(){
-  const appr=leads.filter(l=>l.status.toLowerCase()==='approved');
+  const appr=leads.filter(l=>l.status?.toLowerCase()==='approved');
   if(!appr.length){toast('No approved leads to export','err');return;}
   let rows=['Company,Vertical,City,Priority,Level,ContactTitle,ConnectionMessage'];
   appr.forEach(l=>{
-    [[l.c1,l.m1],[l.c2,l.m2]].forEach(([t,m],ci)=>{
-      const msg=document.getElementById(`m-${l.id}-${ci}`)?.value||m||'';
-      rows.push(`"${l.company}","${l.vertical}","${l.city}","${l.priority}","${l.level}","${t}","${msg.replace(/"/g,'""')}"`);
+    [[l.contact1_title,l.message1,1],[l.contact2_title,l.message2,2]].forEach(([t,m,i])=>{
+      const msg=document.getElementById(`m-${l.id}-${i}`)?.value||m||'';
+      rows.push(`"${l.company}","${l.vertical}","${l.city}","${l.priority}","${l.level||''}","${t||''}","${msg.replace(/"/g,'""')}"`);
     });
   });
   const blob=new Blob([rows.join('\n')],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download=`linked-helper-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
+  a.href=url;a.download=`linked-helper-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();URL.revokeObjectURL(url);
   toast(`Exported ${appr.length*2} contacts for Linked Helper`,'ok');
 }
 
@@ -546,11 +539,10 @@ function toast(msg,type){
   const t=document.getElementById('toast');
   document.getElementById('toast-msg').textContent=msg;
   t.className=`toast show ${type==='err'?'err':'ok'}`;
-  setTimeout(()=>t.classList.remove('show'),3000);
+  setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-// Auto-open settings on load
-window.addEventListener('load', () => openModal());
+window.addEventListener('load',()=>openModal());
 </script>
 </body>
 </html>
