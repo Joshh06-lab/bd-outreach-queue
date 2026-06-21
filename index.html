@@ -530,21 +530,67 @@ function toggle(id){
   if(l){l._open=!l._open;renderLeads();}
 }
 
+const WORKER_URL = 'https://late-resonance-1316.josh-082.workers.dev';
+
+async function fireExpandi(l){
+  // Build contacts array — only include contacts that have a LinkedIn URL
+  const contacts = [];
+  const nameParts1 = (l.contact1_name||'').trim().split(/\s+/);
+  const nameParts2 = (l.contact2_name||'').trim().split(/\s+/);
+  // Get edited messages from textareas if open, otherwise fall back to saved values
+  const msg1 = document.getElementById(`m-${l.id}-1`)?.value || l.message1 || '';
+  const msg2 = document.getElementById(`m-${l.id}-2`)?.value || l.message2 || '';
+  if(l.contact1_url) contacts.push({
+    profile_link: l.contact1_url,
+    first_name: nameParts1[0] || '',
+    company_name: l.company || '',
+    custom_placeholder: msg1
+  });
+  if(l.contact2_url) contacts.push({
+    profile_link: l.contact2_url,
+    first_name: nameParts2[0] || '',
+    company_name: l.company || '',
+    custom_placeholder: msg2
+  });
+  if(!contacts.length) return 0;
+  try {
+    const res = await fetch(`${WORKER_URL}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contacts })
+    });
+    const data = await res.json();
+    console.log('Expandi response:', data);
+    return contacts.length;
+  } catch(e) {
+    console.error('Expandi error:', e);
+    return 0;
+  }
+}
+
 async function setLeadStatus(id,status){
   const l=leads.find(x=>x.id===id);
   if(!l) return;
   l.status=status;
-  if(status==='approved'){l._open=true;toast(`${l.company} approved — contacts queued`,'ok');}
   renderLeads();
-  try { await updateLeadStatus(id,status); } catch(e){ toast('Failed to save status','err'); }
+  try { await updateLeadStatus(id,status); } catch(e){ toast('Failed to save status','err'); return; }
+  if(status==='approved'){
+    const sent = await fireExpandi(l);
+    if(sent>0) toast(`${l.company} approved — ${sent} contact${sent>1?'s':''} sent to Expandi ✓`,'ok');
+    else toast(`${l.company} approved — no LinkedIn contacts to send yet`,'ok');
+  }
 }
 
 async function approveAll(){
   const list=filtered().filter(l=>l.status?.toLowerCase()==='pending');
   list.forEach(l=>l.status='approved');
   renderLeads();
-  toast(`${list.length} leads approved`,'ok');
-  for(const l of list){ try{ await updateLeadStatus(l.id,'approved'); }catch(e){} }
+  let totalSent=0;
+  for(const l of list){
+    try{ await updateLeadStatus(l.id,'approved'); }catch(e){}
+    totalSent += await fireExpandi(l);
+  }
+  toast(`${list.length} leads approved — ${totalSent} contacts sent to Expandi`,'ok');
 }
 
 async function skipAll(){
@@ -581,14 +627,14 @@ function showTab(t){
   });
 }
 
-function sendToExpandi(){
+async function sendToExpandi(){
   const appr=leads.filter(l=>l.status?.toLowerCase()==='approved');
   if(!appr.length){toast('No approved leads to send','err');return;}
   const withLinkedIn=appr.filter(l=>hasLinkedIn(l));
   if(!withLinkedIn.length){toast('No approved leads have LinkedIn contacts yet','err');return;}
-  // Expandi webhook integration coming soon
-  // Will fire per-contact with profileUrl + personalised message
-  toast(`Ready to send ${withLinkedIn.length*2} contacts to Expandi — integration coming soon`,'ok');
+  let totalSent=0;
+  for(const l of withLinkedIn){ totalSent += await fireExpandi(l); }
+  toast(`Sent ${totalSent} contacts to Expandi`,'ok');
 }
 
 function toast(msg,type){
