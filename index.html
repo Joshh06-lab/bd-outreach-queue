@@ -213,7 +213,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     <div class="conn-badge"><span class="conn-dot" id="cdot"></span><span id="clabel">Disconnected</span></div>
     <button class="btn btn-icon" onclick="openModal()" title="Settings"><i class="fa fa-gear"></i></button>
     <button class="btn btn-icon" onclick="loadData()" title="Refresh"><i class="fa fa-rotate-right"></i></button>
-    <button class="btn btn-export" onclick="exportCSV()"><i class="fa fa-download"></i> Export to Linked Helper</button>
+    <button class="btn btn-export" onclick="sendToExpandi()"><i class="fa fa-paper-plane"></i> Send to Expandi</button>
   </div>
 </div>
 
@@ -241,7 +241,6 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
       <span class="pill" onclick="filt('v','Cyber',this)">Cyber</span>
       <span class="pill" onclick="filt('v','Data & AI',this)">Data & AI</span>
       <span class="pill" onclick="filt('v','Transformation',this)">Transformation</span>
-      <span class="pill" onclick="filt('v','Technology Sales',this)">Technology Sales</span>
     </div>
     <div class="filter-row">
       <span class="filter-label">City</span>
@@ -379,7 +378,7 @@ function setConnStatus(s){
 function pnum(l){return l.priority==='P1'?1:l.priority==='P2'?2:3;}
 function pcls(l){return ['','p1','p2','p3'][pnum(l)];}
 function av(i){const c=AVATARS[i%AVATARS.length];return `background:${c.bg};color:${c.c};`;}
-function vcls(v){return {'Cyber':'b-cyber','Data & AI':'b-data','Transformation':'b-transform','Technology Sales':'b-sales'}[v]||'b-grey';}
+function vcls(v){return {'Cyber':'b-cyber','Data & AI':'b-data','Transformation':'b-transform'}[v]||'b-grey';}
 
 // Returns true if the lead has at least one LinkedIn URL
 function hasLinkedIn(l){ return !!(l.contact1_url || l.contact2_url); }
@@ -582,71 +581,14 @@ function showTab(t){
   });
 }
 
-function exportCSV(){
+function sendToExpandi(){
   const appr=leads.filter(l=>l.status?.toLowerCase()==='approved');
-  if(!appr.length){toast('No approved leads to export','err');return;}
-
-  // Linked Helper expects: profileUrl as the LinkedIn column
-  // Additional context columns included for reference
-  const headers=[
-    'profileUrl',           // LinkedIn profile URL — used by Linked Helper for direct import
-    'firstName',            // Parsed from contact name
-    'lastName',             // Parsed from contact name
-    'Company',
-    'Vertical',
-    'City',
-    'Priority',
-    'Level',
-    'ContactTitle',
-    'ConnectionMessage',
-    'ContactSlot',          // 1 or 2 — useful for deduplication review
-    'DateScraped'
-  ];
-
-  let rows=[headers.join(',')];
-
-  appr.forEach(l=>{
-    [
-      {name:l.contact1_name, url:l.contact1_url, title:l.contact1_title, msgId:`m-${l.id}-1`, msgFallback:l.message1, slot:1},
-      {name:l.contact2_name, url:l.contact2_url, title:l.contact2_title, msgId:`m-${l.id}-2`, msgFallback:l.message2, slot:2}
-    ].forEach(c=>{
-      // Only export rows that have a LinkedIn URL — Linked Helper needs it
-      if(!c.url) return;
-
-      const msg = document.getElementById(c.msgId)?.value || c.msgFallback || '';
-      const nameParts = (c.name||'').trim().split(/\s+/);
-      const firstName = nameParts[0] || '';
-      const lastName  = nameParts.slice(1).join(' ') || '';
-
-      const esc = v => `"${(v||'').replace(/"/g,'""')}"`;
-      rows.push([
-        esc(c.url),
-        esc(firstName),
-        esc(lastName),
-        esc(l.company),
-        esc(l.vertical),
-        esc(l.city),
-        esc(l.priority),
-        esc(l.level),
-        esc(c.title),
-        esc(msg),
-        esc(String(c.slot)),
-        esc(l.date_scraped)
-      ].join(','));
-    });
-  });
-
-  if(rows.length <= 1){
-    toast('No contacts with LinkedIn URLs to export — enrich first','err');
-    return;
-  }
-
-  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=`linked-helper-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-  toast(`Exported ${rows.length-1} contacts for Linked Helper`,'ok');
+  if(!appr.length){toast('No approved leads to send','err');return;}
+  const withLinkedIn=appr.filter(l=>hasLinkedIn(l));
+  if(!withLinkedIn.length){toast('No approved leads have LinkedIn contacts yet','err');return;}
+  // Expandi webhook integration coming soon
+  // Will fire per-contact with profileUrl + personalised message
+  toast(`Ready to send ${withLinkedIn.length*2} contacts to Expandi — integration coming soon`,'ok');
 }
 
 function toast(msg,type){
