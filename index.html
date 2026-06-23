@@ -131,12 +131,13 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .card-body.open { display: block; padding-top: 14px; }
 .signal-box { font-size: 13px; color: var(--text2); background: var(--bg2); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; line-height: 1.65; }
 .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.contact-box { background: var(--bg2); border-radius: var(--radius-sm); padding: 12px; }
+.contact-box { background: var(--bg2); border-radius: var(--radius-sm); padding: 12px; transition: border 0.15s; border: 1.5px solid transparent; }
+.contact-box.excluded { opacity: 0.45; }
 .contact-num { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 3px; }
 .contact-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
 
-/* NEW: Contact name + LinkedIn styles */
-.contact-name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+/* Contact name + LinkedIn styles */
+.contact-name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
 .contact-name { font-size: 13px; color: var(--text); font-weight: 500; }
 .contact-name.unknown { color: var(--text3); font-style: italic; font-weight: 400; }
 .linkedin-link { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 500; color: #0A66C2; background: #EAF3FB; border: 1px solid #B8D4F0; padding: 2px 7px; border-radius: 20px; text-decoration: none; transition: opacity 0.15s; flex-shrink: 0; }
@@ -144,11 +145,16 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .linkedin-link i { font-size: 10px; }
 .no-linkedin { font-size: 11px; color: var(--text3); font-style: italic; }
 
+/* CONTACT CHECKBOX */
+.contact-checkbox-row { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.contact-checkbox { width: 15px; height: 15px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+.contact-checkbox-label { font-size: 12px; color: var(--text2); font-weight: 500; cursor: pointer; user-select: none; }
+
 .msg-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 5px; }
 .msg-box { width: 100%; font-size: 13px; padding: 8px 10px; border: 1.5px solid var(--border2); border-radius: var(--radius-sm); background: white; color: var(--text); font-family: var(--font); resize: vertical; min-height: 72px; line-height: 1.55; transition: border-color 0.15s; }
 .msg-box:focus { outline: none; border-color: var(--blue); }
 
-/* NEW: Contact enrichment status indicator */
+/* Contact enrichment status indicator */
 .enrichment-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; font-weight: 500; }
 .enrichment-badge.found { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
 .enrichment-badge.partial { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
@@ -380,9 +386,13 @@ function pnum(l){return l.priority==='P1'?1:l.priority==='P2'?2:3;}
 function pcls(l){return ['','p1','p2','p3'][pnum(l)];}
 function av(i){const c=AVATARS[i%AVATARS.length];return `background:${c.bg};color:${c.c};`;}
 function vcls(v){return {'Cyber':'b-cyber','Data & AI':'b-data','Transformation':'b-transform'}[v]||'b-grey';}
-
-// Returns true if the lead has at least one LinkedIn URL
 function hasLinkedIn(l){ return !!(l.contact1_url || l.contact2_url); }
+
+// Get checkbox state for a contact (default: checked if URL exists)
+function isContactChecked(leadId, contactNum){
+  const cb = document.getElementById(`cb-sel-${leadId}-${contactNum}`);
+  return cb ? cb.checked : true;
+}
 
 function filtered(){
   let l=[...leads];
@@ -415,13 +425,21 @@ function setSort(m,el){
 
 function renderAll(){renderLeads();renderExcluded();updateStats();}
 
-// Renders a single contact block (1 or 2) inside the card body
+function toggleContactBox(leadId, contactNum){
+  const cb = document.getElementById(`cb-sel-${leadId}-${contactNum}`);
+  const box = document.getElementById(`cbox-${leadId}-${contactNum}`);
+  if(cb && box){
+    box.classList.toggle('excluded', !cb.checked);
+  }
+}
+
 function renderContactBox(l, contactNum){
   const isOne = contactNum === 1;
   const name  = isOne ? l.contact1_name  : l.contact2_name;
   const url   = isOne ? l.contact1_url   : l.contact2_url;
   const title = isOne ? l.contact1_title : l.contact2_title;
   const msg   = isOne ? l.message1       : l.message2;
+  const hasUrl = !!url;
 
   const nameHtml = name
     ? `<span class="contact-name">${name}</span>`
@@ -431,17 +449,25 @@ function renderContactBox(l, contactNum){
     ? `<a class="linkedin-link" href="${url}" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i> LinkedIn</a>`
     : `<span class="no-linkedin">No profile found</span>`;
 
+  // Checkbox: only shown if there's a LinkedIn URL; checked by default
+  const checkboxHtml = hasUrl ? `
+    <div class="contact-checkbox-row">
+      <input type="checkbox" class="contact-checkbox" id="cb-sel-${l.id}-${contactNum}" checked
+        onchange="toggleContactBox('${l.id}', ${contactNum})" onclick="event.stopPropagation()">
+      <label class="contact-checkbox-label" for="cb-sel-${l.id}-${contactNum}">Send to Expandi</label>
+    </div>` : '';
+
   return `
-    <div class="contact-box">
+    <div class="contact-box" id="cbox-${l.id}-${contactNum}">
       <div class="contact-num">Contact ${contactNum}</div>
       <div class="contact-title">${title||'—'}</div>
       <div class="contact-name-row">${nameHtml}${liHtml}</div>
+      ${checkboxHtml}
       <div class="msg-lbl">Connection message</div>
       <textarea class="msg-box" id="m-${l.id}-${contactNum}" rows="3">${msg||''}</textarea>
     </div>`;
 }
 
-// Returns enrichment badge HTML based on how many LinkedIn URLs are populated
 function enrichmentBadge(l){
   const count = [l.contact1_url, l.contact2_url].filter(Boolean).length;
   if(count === 2) return `<span class="enrichment-badge found"><i class="fab fa-linkedin fa-xs"></i> 2 contacts found</span>`;
@@ -531,27 +557,30 @@ function toggle(id){
   if(l){l._open=!l._open;renderLeads();}
 }
 
-
 async function fireExpandi(l){
-  // Build contacts array — only include contacts that have a LinkedIn URL
   const contacts = [];
   const nameParts1 = (l.contact1_name||'').trim().split(/\s+/);
   const nameParts2 = (l.contact2_name||'').trim().split(/\s+/);
-  // Get edited messages from textareas if open, otherwise fall back to saved values
   const msg1 = document.getElementById(`m-${l.id}-1`)?.value || l.message1 || '';
   const msg2 = document.getElementById(`m-${l.id}-2`)?.value || l.message2 || '';
-  if(l.contact1_url) contacts.push({
+
+  // Only include contact if it has a URL AND its checkbox is checked
+  const cb1 = document.getElementById(`cb-sel-${l.id}-1`);
+  const cb2 = document.getElementById(`cb-sel-${l.id}-2`);
+
+  if(l.contact1_url && (cb1 ? cb1.checked : true)) contacts.push({
     profile_link: l.contact1_url,
     first_name: nameParts1[0] || '',
     company_name: l.company || '',
     custom_placeholder: msg1
   });
-  if(l.contact2_url) contacts.push({
+  if(l.contact2_url && (cb2 ? cb2.checked : true)) contacts.push({
     profile_link: l.contact2_url,
     first_name: nameParts2[0] || '',
     company_name: l.company || '',
     custom_placeholder: msg2
   });
+
   if(!contacts.length) return 0;
   try {
     const res = await fetch(`${WORKER_URL}/approve`, {
